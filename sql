@@ -1,0 +1,110 @@
+CREATE DATABASE Huspital;
+GO
+USE Huspital;
+GO
+
+
+CREATE TABLE Departments(
+	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	[Building] INT NOT NULL CHECK(Building >= 1 AND Building <=5),
+	[Financing] MONEY NOT NULL CHECK (Financing >= 0) DEFAULT 0,
+	[Name] NVARCHAR(100) NOT NULL UNIQUE,
+);
+
+CREATE TABLE Doctors(
+	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	[Name] NVARCHAR(max) NOT NULL,
+	[Phone] CHAR(10),
+	[Salary] MONEY CHECK (Salary > 0),
+	[Surname] NVARCHAR(max) NOT NULL,
+);
+
+CREATE TABLE Rooms(
+	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	[Number] INT NOT NULL UNIQUE,
+	[Building] INT NOT NULL CHECK (Building >= 1 AND Building <= 5),
+	[Capacity] INT NOT NULL CHECK (Capacity >=1) DEFAULT 1,
+	[DepartmentId] INT NOT NULL,
+	FOREIGN KEY (DepartmentId) REFERENCES Departments(Id)
+);
+
+CREATE TABLE Patients(
+	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	[Name] NVARCHAR(100) NOT NULL,
+	[Surname] NVARCHAR(100),
+	[Phone] CHAR(10),
+	[BirthDate] DATE NOT NULL,
+	[DepartmentId] INT,
+	FOREIGN KEY (DepartmentId) REFERENCES Departments(Id)
+);
+
+CREATE TABLE Examinations(
+	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	[Name] NVARCHAR(100) NOT NULL,
+	[DayOfWeek] INT NOT NULL CHECK (DayofWeek>=1 AND DayofWeek <=7),
+	[StartTime] TIME NOT NULL CHECK (StartTime>= '08:00:00' AND StartTime <= '18:00:00'),
+	[EndTime] TIME NOT NULL CHECK (EndTime > StartTime), 
+);
+
+CREATE TABLE PatientRooms(
+	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	[PatientlId] INT NOT NULL,
+	FOREIGN KEY (PatientlId) REFERENCES Patients(Id),
+	[RoomId] INT NOT NULL,
+	FOREIGN KEY (RoomId) REFERENCES Rooms(Id),
+	[AdmissionDate] DATE NOT NULL,
+	[DischargeDate] DATE,
+);
+
+CREATE TABLE PatientDiseases(
+	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	[PatientId] INT NOT NULL,
+	FOREIGN KEY (PatientId) REFERENCES Patients(Id),
+	[DepartmentId] INT,
+	FOREIGN KEY (DepartmentId) REFERENCES Departments(Id),
+	[DiagnosisDate] DATE NOT NULL,
+);
+
+CREATE TABLE Diseases(
+	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	[Name] NVARCHAR(100) UNIQUE NOT NULL,
+	[Severity] INT NOT NULL CHECK (Severity >=1) DEFAULT 1,
+);
+
+
+ALTER TABLE Examinations ADD DoctorId INT NOT NULL FOREIGN KEY (DoctorId) REFERENCES Doctors(Id);
+
+
+INSERT INTO Doctors([Name], Phone, Salary, Surname)
+VALUES
+('Сергей Петров', '1234567890', 25000, 'Неврология'),
+('Анна Сидорова', '0987654321', 30000, 'Кардиология');
+
+ALTER TABLE Doctors ADD CONSTRAINT Salary_max CHECK (Salary <= 100000);
+
+ALTER TABLE Doctors ADD DepartmentId INT NOT NULL FOREIGN KEY (DepartmentId) REFERENCES Departments(Id);
+
+ALTER TABLE Diseases ADD "Description" NVARCHAR(500) NULL; -- Разрешаем NULL, чтобы старые строки не ломались, либо задаем значение
+
+INSERT INTO Diseases([Name], Severity, [Description])
+VALUES
+('Грипп', 1, 'Описание гриппа'),
+('Пневмония', 3, 'Описание пневмонии'),
+('Мигрень', 2, 'Описание мигрени');
+
+INSERT INTO Departments(Building, Financing, [Name])
+VALUES
+(3, 15000, 'Неврология'),
+(5, 22000, 'Кардиология');
+
+INSERT INTO Patients([Name], Surname, Phone, BirthDate)
+VALUES
+('Сергей', 'Иванов', '1112223334', '1985-04-12'),
+('Ольга', 'Кузнецова', '2223334445', '1990-08-23'),
+('Дмитрий', 'Смирнов', NULL, '1978-01-05');
+
+INSERT INTO Rooms(Number, Building, Capacity, DepartmentId)
+VALUES
+(101, 3, 2, 1),
+(102, 3, 1, 1),
+(201, 5, 3, 2);
