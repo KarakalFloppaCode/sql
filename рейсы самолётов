@@ -129,7 +129,7 @@ ALTER TABLE Doctors ADD CONSTRAINT Salary_max CHECK (Salary <= 100000);
 
 ALTER TABLE Doctors ADD DepartmentId INT NOT NULL FOREIGN KEY (DepartmentId) REFERENCES Departments(Id);
 
-ALTER TABLE Diseases ADD "Description" NVARCHAR(500) NULL; -- Разрешаем NULL, чтобы старые строки не ломались, либо задаем значение
+ALTER TABLE Diseases ADD "Description" NVARCHAR(500) NULL;
 
 INSERT INTO Diseases([Name], Severity, [Description])
 VALUES
