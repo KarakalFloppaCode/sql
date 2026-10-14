@@ -1,155 +1,235 @@
 CREATE DATABASE Airport;
 
 USE Airport;
+CREATE DATABASE Airport;
+
+USE Airport;
 
 CREATE TABLE Passengers(
-    [Passengerid] INT PRIMARY KEY,
+	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
 	[FirtsName] NVARCHAR(100) NOT NULL,
 	[LastName] NVARCHAR(100) NOT NULL,
+	[Age] CHAR(3) NOT NULL,
 );
+
+CREATE TABLE City (
+    Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [CityName] VARCHAR(50) NOT NULL UNIQUE
+);
+
 
 CREATE TABLE Flights (
-    [FlightId] INT PRIMARY KEY,
-    [FlightNumber] VARCHAR(50) NOT NULL,
-    [DepartureAirport] VARCHAR(50),
-    [ArrivalAirport] VARCHAR(50),
-    [DepartureTime] DATETIME NOT NULL,
-    [ArrivalTime] DATETIME NOT NULL
+    Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [FlightNumber] VARCHAR(10) NOT NULL,
+    [FlightCompany] NVARCHAR(50) NOT NULL,
+    [DepartureCityId] INT NOT NULL,
+    [ArrivalCityId] INT NOT NULL,
+    [DepartureDate] DATE NOT NULL,
+    [DepartureTime] TIME NOT NULL,
+    [ArrivalDate] DATE NOT NULL,
+    [ArrivalTime] TIME NOT NULL,
+    FOREIGN KEY (DepartureCityId) REFERENCES City(Id),
+    FOREIGN KEY (ArrivalCityId) REFERENCES City(Id)
 );
+
+
+
 
 CREATE TABLE Tickets (
-    [TicketId] INT PRIMARY KEY,
+    Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
     [FlightId] INT NOT NULL,
     [PassengerId] INT NOT NULL,
-    [SeatNumber] VARCHAR(50),
-	[Class] VARCHAR(20) NOT NULL CHECK ([Class] IN ('economy', 'business')),
-    FOREIGN KEY (FlightId) REFERENCES Flights(FlightId),
-    FOREIGN KEY (Passengerid) REFERENCES Passengers(Passengerid)
+    [SeatNumber] VARCHAR(10) NOT NULL,
+    [Class] VARCHAR(20) NOT NULL CHECK (Class IN ('economy', 'business')),
+    [Price] DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (FlightId) REFERENCES Flights(Id),
+    FOREIGN KEY (PassengerId) REFERENCES Passengers(Id)
 );
 
-INSERT INTO Passangers(FirstName, LastName)
+
+
+INSERT INTO Passengers (FirtsName, LastName, Age)
 VALUES
-('Петров', 'Петрович'),
-('Данилов', 'Данил');
+('Ежик', 'Вейкпер', 43),
+('Отпроск', 'Отросток', 64),
+('Степа', 'Сипалин', 18),
+('Данил', 'Колбасенко', 19),
+('Роналду', 'Роналдович', 45),
+('Месси', 'Джинсоговор', 36),
+('Лебедь', 'Шашлыки', 11),
+('Муся', 'Шашлыки', 22),
+('Валера', 'Гостер', 78),
+('Петух', 'Гусь', 35),
+('Анна', 'Иванова', 29),
+('Борис', 'Петров', 33),
+('Виктор', 'Сидоров', 41),
+('Галина', 'Кузнецова', 27),
+('Дмитрий', 'Смирнов', 38);
 
 
-
-
-
-
-
-
-
-
-
-
-CREATE DATABASE Huspital;
-GO
-USE Huspital;
-GO
-
-
-CREATE TABLE Departments(
-	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	[Building] INT NOT NULL CHECK(Building >= 1 AND Building <=5),
-	[Financing] MONEY NOT NULL CHECK (Financing >= 0) DEFAULT 0,
-	[Name] NVARCHAR(100) NOT NULL UNIQUE,
-);
-
-CREATE TABLE Doctors(
-	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	[Name] NVARCHAR(max) NOT NULL,
-	[Phone] CHAR(10),
-	[Salary] MONEY CHECK (Salary > 0),
-	[Surname] NVARCHAR(max) NOT NULL,
-);
-
-CREATE TABLE Rooms(
-	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	[Number] INT NOT NULL UNIQUE,
-	[Building] INT NOT NULL CHECK (Building >= 1 AND Building <= 5),
-	[Capacity] INT NOT NULL CHECK (Capacity >=1) DEFAULT 1,
-	[DepartmentId] INT NOT NULL,
-	FOREIGN KEY (DepartmentId) REFERENCES Departments(Id)
-);
-
-CREATE TABLE Patients(
-	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	[Name] NVARCHAR(100) NOT NULL,
-	[Surname] NVARCHAR(100),
-	[Phone] CHAR(10),
-	[BirthDate] DATE NOT NULL,
-	[DepartmentId] INT,
-	FOREIGN KEY (DepartmentId) REFERENCES Departments(Id)
-);
-
-CREATE TABLE Examinations(
-	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	[Name] NVARCHAR(100) NOT NULL,
-	[DayOfWeek] INT NOT NULL CHECK (DayofWeek>=1 AND DayofWeek <=7),
-	[StartTime] TIME NOT NULL CHECK (StartTime>= '08:00:00' AND StartTime <= '18:00:00'),
-	[EndTime] TIME NOT NULL CHECK (EndTime > StartTime), 
-);
-
-CREATE TABLE PatientRooms(
-	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	[PatientlId] INT NOT NULL,
-	FOREIGN KEY (PatientlId) REFERENCES Patients(Id),
-	[RoomId] INT NOT NULL,
-	FOREIGN KEY (RoomId) REFERENCES Rooms(Id),
-	[AdmissionDate] DATE NOT NULL,
-	[DischargeDate] DATE,
-);
-
-CREATE TABLE PatientDiseases(
-	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	[PatientId] INT NOT NULL,
-	FOREIGN KEY (PatientId) REFERENCES Patients(Id),
-	[DepartmentId] INT,
-	FOREIGN KEY (DepartmentId) REFERENCES Departments(Id),
-	[DiagnosisDate] DATE NOT NULL,
-);
-
-CREATE TABLE Diseases(
-	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	[Name] NVARCHAR(100) UNIQUE NOT NULL,
-	[Severity] INT NOT NULL CHECK (Severity >=1) DEFAULT 1,
-);
-
-
-ALTER TABLE Examinations ADD DoctorId INT NOT NULL FOREIGN KEY (DoctorId) REFERENCES Doctors(Id);
-
-
-INSERT INTO Doctors([Name], Phone, Salary, Surname)
+INSERT INTO City (CityName)
 VALUES
-('Сергей Петров', '1234567890', 25000, 'Неврология'),
-('Анна Сидорова', '0987654321', 30000, 'Кардиология');
+('Екатеринбург'),
+('Москва'),
+('Сочи'),
+('Казань'),
+('Санкт-Петербург'),
+('Новосибирск'),
+('Владивосток');
 
-ALTER TABLE Doctors ADD CONSTRAINT Salary_max CHECK (Salary <= 100000);
 
-ALTER TABLE Doctors ADD DepartmentId INT NOT NULL FOREIGN KEY (DepartmentId) REFERENCES Departments(Id);
-
-ALTER TABLE Diseases ADD "Description" NVARCHAR(500) NULL;
-
-INSERT INTO Diseases([Name], Severity, [Description])
+INSERT INTO Flights (FlightNumber, FlightCompany, DepartureCityId, ArrivalCityId, DepartureDate, DepartureTime, ArrivalDate, ArrivalTime) 
 VALUES
-('Грипп', 1, 'Описание гриппа'),
-('Пневмония', 3, 'Описание пневмонии'),
-('Мигрень', 2, 'Описание мигрени');
+('SU100', 'Россия1', 1, 2, '2000-04-12', '15:00:00', '2000-04-12', '23:00:00'),
+('SU101', 'Россия1', 1, 2, '2000-04-12', '14:00:00', '2000-04-12', '22:00:00'),
+('SU102', 'Россия1', 2, 3, '2000-04-13', '18:00:00', '2000-04-14', '05:00:00'),
+('SU103', 'Аирофлот', 2, 4, '2000-04-12', '15:00:00', '2000-04-12', '23:00:00'),
+('SU104', 'Аирофлот', 4, 2, '2000-04-14', '15:00:00', '2000-04-14', '23:00:00'),
+('SU105', 'Аирофлот', 2, 5, '2000-04-15', '15:00:00', '2000-04-15', '23:00:00'),
+('SU106', 'Енвелоп', 3, 6, '2000-04-18', '15:00:00', '2000-04-18', '23:00:00'),
+('SU107', 'Мухамед', 6, 7, '2000-04-12', '15:00:00', '2000-04-12', '23:00:00'),
+('SU108', 'Россия1', 2, 1, '2000-04-13', '10:00:00', '2000-04-13', '18:00:00'),
+('SU109', 'Аирофлот', 4, 3, '2000-04-15', '12:00:00', '2000-04-15', '20:00:00'),
+('SU110', 'Енвелоп', 7, 2, '2000-04-16', '14:00:00', '2000-04-17', '02:00:00');
 
-INSERT INTO Departments(Building, Financing, [Name])
+INSERT INTO Tickets (FlightId, PassengerId, SeatNumber, Class, Price) 
 VALUES
-(3, 15000, 'Неврология'),
-(5, 22000, 'Кардиология');
+(1, 1, '1A', 'economy', 3000.00),
+(1, 2, '1B', 'business', 18000.00),
+(1, 3, '2A', 'economy', 3000.00),
+(1, 4, '2B', 'economy', 3000.00),
+(1, 5, '3A', 'economy', 3000.00),
+(2, 6, '1A', 'business', 17000.00),
+(2, 7, '1B', 'economy', 2800.00),
+(2, 8, '2A', 'economy', 2800.00),
+(3, 9, '1A', 'business', 22000.00),
+(3, 10, '1B', 'economy', 4500.00),
+(3, 11, '2A', 'economy', 4500.00),
+(4, 12, '1A', 'business', 19000.00),
+(4, 13, '1B', 'economy', 3200.00),
+(5, 14, '1A', 'economy', 3100.00),
+(5, 15, '1B', 'economy', 3100.00),
+(6, 1, '1A', 'business', 21000.00),
+(6, 3, '1B', 'economy', 4000.00),
+(7, 5, '1A', 'economy', 5500.00),
+(8, 7, '1A', 'business', 23000.00),
+(9, 9, '1A', 'economy', 3300.00),
+(10, 11, '1A', 'business', 24000.00),
+(10, 13, '1B', 'economy', 4200.00);
 
-INSERT INTO Patients([Name], Surname, Phone, BirthDate)
-VALUES
-('Сергей', 'Иванов', '1112223334', '1985-04-12'),
-('Ольга', 'Кузнецова', '2223334445', '1990-08-23'),
-('Дмитрий', 'Смирнов', NULL, '1978-01-05');
 
-INSERT INTO Rooms(Number, Building, Capacity, DepartmentId)
-VALUES
-(101, 3, 2, 1),
-(102, 3, 1, 1),
-(201, 5, 3, 2);
+
+DROP TABLE Tickets;
+DROP TABLE Passengers;
+DROP TABLE Flights;
+DROP TABLE City;
+
+
+SELECT * FROM Passengers;
+SELECT * FROM Flights;
+SELECT * FROM Tickets;
+SELECT * FROM City;
+
+
+
+--1
+
+SELECT f.*, c.CityName AS ArrivalCity
+FROM Flights f
+JOIN City c ON f.ArrivalCityId = c.Id
+WHERE c.CityName = 'Москва' AND f.DepartureDate = '2000-04-12'
+ORDER BY f.DepartureTime;
+
+
+
+--2
+
+SELECT TOP 1 *,
+    DATEDIFF(MINUTE,
+        CAST(DepartureDate AS DATETIME) + CAST(DepartureTime AS DATETIME),
+        CAST(ArrivalDate AS DATETIME) + CAST(ArrivalTime AS DATETIME)
+    ) AS DurationMinutes
+FROM Flights
+ORDER BY DurationMinutes DESC;
+
+--3
+
+SELECT *,
+    DATEDIFF(MINUTE,
+        CAST(DepartureDate AS DATETIME) + CAST(DepartureTime AS DATETIME),
+        CAST(ArrivalDate AS DATETIME) + CAST(ArrivalTime AS DATETIME)
+    ) AS DurationMinutes
+FROM Flights
+WHERE DATEDIFF(MINUTE,
+    CAST(DepartureDate AS DATETIME) + CAST(DepartureTime AS DATETIME),
+    CAST(ArrivalDate AS DATETIME) + CAST(ArrivalTime AS DATETIME)) > 120;
+
+--4
+
+SELECT c.CityName, COUNT(*) AS TotalFlights
+FROM Flights f
+JOIN City c ON f.ArrivalCityId = c.Id
+GROUP BY c.CityName;
+
+--5
+
+SELECT TOP 1 c.CityName, COUNT(*) AS TotalFlights
+FROM Flights f
+JOIN City c ON f.ArrivalCityId = c.Id
+GROUP BY c.CityName
+ORDER BY TotalFlights DESC;
+
+--6
+
+SELECT c.CityName, COUNT(*) AS FlightsPerCity
+FROM Flights f
+JOIN City c ON f.ArrivalCityId = c.Id
+WHERE MONTH(f.DepartureDate) = 4 AND YEAR(f.DepartureDate) = 2000
+GROUP BY c.CityName
+UNION ALL
+SELECT 'Total', COUNT(*)
+FROM Flights
+WHERE MONTH(DepartureDate) = 4 AND YEAR(DepartureDate) = 2000;
+
+--7
+
+SELECT f.*
+FROM Flights f
+LEFT JOIN Tickets t ON f.Id = t.FlightId AND t.Class = 'business'
+WHERE f.DepartureDate = '2000-04-12'
+GROUP BY f.Id, f.FlightNumber, f.FlightCompany, f.DepartureCityId, f.ArrivalCityId,
+         f.DepartureDate, f.DepartureTime, f.ArrivalDate, f.ArrivalTime
+HAVING COUNT(t.Id) < 10;
+
+--8
+
+SELECT COUNT(t.Id) AS TotalTickets, SUM(t.Price) AS TotalRevenue
+FROM Tickets t
+JOIN Flights f ON t.FlightId = f.Id
+WHERE f.DepartureDate = '2000-04-12';
+
+
+--9
+
+SELECT f.FlightNumber, f.DepartureDate, COUNT(t.Id) AS SoldTickets
+FROM Flights f
+LEFT JOIN Tickets t ON f.Id = t.FlightId
+WHERE f.DepartureDate = '2000-04-13'
+GROUP BY f.FlightNumber, f.DepartureDate;
+
+--10
+
+SELECT f.FlightNumber, c.CityName AS ArrivalCity
+FROM Flights f
+JOIN City c ON f.ArrivalCityId = c.Id
+WHERE f.DepartureCityId = 1;
+
+
+
+
+
+
+
+
+
+
